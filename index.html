@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Gajanand Tubewell</title>
+    <!-- CSS & Fonts -->
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Scripts for PDF Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="app.js" defer></script>
+</head>
+<body>
+
+<div id="app-container">
+    
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">Action Successful</div>
+
+    <!-- 1. SPLASH SCREEN -->
+    <div id="splash-screen" class="screen active">
+        <div class="logo-container">
+            <i class="fa-solid fa-droplet"></i>
+        </div>
+        <div class="splash-title">Gajanand Tubewell</div>
+    </div>
+
+    <!-- 2. DASHBOARD -->
+    <div id="dashboard-screen" class="screen fade-out">
+        <div class="header">
+            <i class="fa-solid fa-water"></i>
+            <h1>Gajanand Tubewell</h1>
+        </div>
+        <div class="content">
+            <h2 style="color: var(--text-main); font-size: 20px;">My Projects</h2>
+            <div id="project-list" style="display: flex; flex-direction: column; gap: 15px; padding-bottom: 80px;">
+                <!-- Projects injected via JS -->
+            </div>
+            
+            <div class="floating-action">
+                <button class="btn" onclick="navigateTo('add-project-screen')">
+                    <i class="fa-solid fa-plus"></i> New Bore Project
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. ADD PROJECT SCREEN -->
+    <div id="add-project-screen" class="screen fade-out">
+        <div class="header">
+            <button class="back-btn" onclick="navigateTo('dashboard-screen')"><i class="fa-solid fa-arrow-left"></i></button>
+            <h1>New Bore Project</h1>
+        </div>
+        <div class="content">
+            <div class="card">
+                <form id="add-project-form">
+                    <div class="form-group">
+                        <label>Party Name</label>
+                        <input type="text" id="input-party" class="form-control" placeholder="e.g. Ramesh Patel" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Village Name</label>
+                        <input type="text" id="input-village" class="form-control" placeholder="e.g. Shivnagar" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Total Bore Depth (Feet)</label>
+                        <input type="number" id="input-depth" class="form-control" placeholder="e.g. 750" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Date</label>
+                        <input type="date" id="input-date" class="form-control" required disabled>
+                    </div>
+                    <button type="submit" class="btn" style="margin-top: 10px;">Start Work</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. PROJECT WORK SCREEN -->
+    <div id="project-work-screen" class="screen fade-out">
+        <div class="header">
+            <button class="back-btn" onclick="navigateTo('dashboard-screen')"><i class="fa-solid fa-arrow-left"></i></button>
+            <h1 id="work-title">Ongoing Drill</h1>
+            <button class="back-btn" onclick="showReport()" style="background: none; font-size: 20px;"><i class="fa-solid fa-file-invoice"></i></button>
+        </div>
+        <div class="content" style="padding-bottom: 30px;">
+            <div class="info-panel">
+                <div class="info-item">
+                    <div class="info-label">Village</div>
+                    <div class="info-value" id="work-village">--</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Target Depth</div>
+                    <div class="info-value" id="work-target-depth">0 ft</div>
+                </div>
+            </div>
+
+            <div class="pipe-entry-card">
+                <h3 style="margin-bottom: 15px; font-size: 16px; color: var(--text-main);">Add Pipe Entry</h3>
+                <form id="add-entry-form" style="display: flex; gap: 10px; align-items: flex-end;">
+                    <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                        <label>Pipe Type</label>
+                        <select id="pipe-type" class="form-control">
+                            <option value="Simple Pipe">Simple Pipe</option>
+                            <option value="Slotted Pipe">Slotted Pipe</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="flex: 0.6; margin-bottom: 0;">
+                        <label>Count</label>
+                        <input type="number" id="pipe-count" class="form-control" placeholder="e.g. 10" required>
+                    </div>
+                    <button type="submit" class="btn btn-green" style="width: auto; padding: 14px;"><i class="fa-solid fa-plus"></i></button>
+                </form>
+            </div>
+
+            <div class="table-container">
+                <table id="entries-table">
+                    <thead>
+                        <tr>
+                            <th>No.</th>
+                            <th>Type</th>
+                            <th>Count</th>
+                            <th>Used(ft)</th>
+                            <th>Rem(ft)</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="entries-tbody">
+                        <!-- Entries populated via JS -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <button class="btn btn-secondary" onclick="showReport()"><i class="fa-solid fa-chart-pie"></i> View Final Report</button>
+        </div>
+    </div>
+
+    <!-- 5. FINAL REPORT SCREEN -->
+    <div id="report-screen" class="screen fade-out">
+        <div class="header">
+            <button class="back-btn" onclick="navigateTo('project-work-screen')"><i class="fa-solid fa-arrow-left"></i></button>
+            <h1>Final Report</h1>
+        </div>
+        <div class="content" style="padding-bottom: 80px;">
+            <div id="report-content-body">
+                <div class="report-header">
+                    <h2><i class="fa-solid fa-droplet"></i> Gajanand Tubewell</h2>
+                    <p style="color: var(--text-muted); font-size: 14px; margin-top: 5px;" id="report-date">Date</p>
+                </div>
+                
+                <h3 style="font-size: 16px; margin-bottom: 10px;">Party Details</h3>
+                <div style="background: #fcfcfc; padding: 10px; border-radius: 8px; border: 1px solid #eee; margin-bottom: 20px;">
+                    <p style="font-weight: 600; font-size: 16px;" id="report-party">Name</p>
+                    <p style="color: var(--text-muted); font-size: 14px;" id="report-village">Village</p>
+                </div>
+
+                <div class="summary-grid">
+                    <div class="summary-box">
+                        <h4>Total Depth Target</h4>
+                        <p id="rep-target">0 ft</p>
+                    </div>
+                    <div class="summary-box">
+                        <h4>Final Remaining</h4>
+                        <p id="rep-remaining">0 ft</p>
+                    </div>
+                    <div class="summary-box primary">
+                        <h4>Total Pipes</h4>
+                        <p id="rep-total-pipes">0</p>
+                    </div>
+                    <div class="summary-box primary">
+                        <h4>Total Feet Used</h4>
+                        <p id="rep-total-feet">0</p>
+                    </div>
+                </div>
+
+                <h3 style="font-size: 16px; margin: 20px 0 10px; text-align: center;">Vertical Well Log</h3>
+                <div id="visual-pipe-container" class="visual-pipe">
+                    <!-- Visual pipeline generated via JS -->
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button class="btn" style="flex: 1;" onclick="downloadPDF()"><i class="fa-solid fa-file-pdf"></i> PDF</button>
+                <button class="btn btn-green" style="flex: 1;" onclick="shareWhatsApp()"><i class="fa-brands fa-whatsapp"></i> Share</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>
